@@ -1,6 +1,7 @@
-# goorm-260501-todo
+# MY TASK
 
 Todoist 스타일의 할 일 앱입니다. **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **Zustand**로 구성되어 있으며, 데이터는 **localStorage**에 저장됩니다.
+<img width="1108" height="777" alt="todo1" src="https://github.com/user-attachments/assets/8afbbb3f-7b84-4422-bfb0-9669ae07f669" />
 
 ## 기능
 
