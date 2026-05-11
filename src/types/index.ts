@@ -22,5 +22,6 @@ export type Task = {
 };
 
 export type NavState =
+  | { kind: "dashboard" }
   | { kind: "view"; view: ViewMode }
   | { kind: "project"; projectId: string };

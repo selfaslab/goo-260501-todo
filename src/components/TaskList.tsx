@@ -11,6 +11,7 @@ type TaskListProps = {
 };
 
 function navTitle(nav: NavState, projects: Project[]): string {
+  if (nav.kind === "dashboard") return "대시보드";
   if (nav.kind === "project") {
     return projects.find((p) => p.id === nav.projectId)?.name ?? "Project";
   }
@@ -26,6 +27,7 @@ function navTitle(nav: NavState, projects: Project[]): string {
 }
 
 function navSubtitle(nav: NavState): string {
+  if (nav.kind === "dashboard") return "";
   if (nav.kind === "project") {
     return "프로젝트에 속한 작업 목록입니다.";
   }
@@ -44,7 +46,7 @@ export function TaskList({ tasks, projects, nav }: TaskListProps) {
   const list = filterTasksByNav(tasks, nav);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 py-8">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 pb-8 pt-4">
       <header>
         <h1 className="text-[28px] font-bold tracking-tight text-neutral-900">
           {navTitle(nav, projects)}

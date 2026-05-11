@@ -1,7 +1,11 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import {
+  persist,
+  createJSONStorage,
+  type StateStorage,
+} from "zustand/middleware";
 import type { NavState, Priority, Project, Task, ViewMode } from "@/types";
 import { compareISODates, todayISO } from "@/lib/dates";
 
@@ -21,6 +25,7 @@ type TodoState = {
 
 type TodoActions = {
   setNav: (nav: NavState) => void;
+  selectDashboard: () => void;
   selectView: (view: ViewMode) => void;
   selectProject: (projectId: string) => void;
   addTask: (input: {
@@ -40,6 +45,10 @@ type TodoActions = {
 };
 
 export function filterTasksByNav(tasks: Task[], nav: NavState): Task[] {
+  if (nav.kind === "dashboard") {
+    return [];
+  }
+
   const t = todayISO();
 
   const byView = (view: ViewMode): Task[] => {
@@ -94,6 +103,38 @@ export function filterTasksByNav(tasks: Task[], nav: NavState): Task[] {
   return sorted;
 }
 
+function sanitizeNav(raw: unknown, fallback: NavState): NavState {
+  if (raw === null || raw === undefined) return fallback;
+  if (typeof raw !== "object" || !("kind" in raw)) return fallback;
+  const o = raw as Record<string, unknown>;
+  if (o.kind === "dashboard") return { kind: "dashboard" };
+  if (
+    o.kind === "project" &&
+    typeof o.projectId === "string" &&
+    o.projectId.length > 0
+  ) {
+    return { kind: "project", projectId: o.projectId };
+  }
+  if (o.kind === "view") {
+    const v = o.view;
+    if (v === "inbox" || v === "today" || v === "upcoming") {
+      return { kind: "view", view: v };
+    }
+  }
+  return fallback;
+}
+
+const noopStorage: StateStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+};
+
+const todoPersistStorage =
+  createJSONStorage(() =>
+    typeof window !== "undefined" ? window.localStorage : noopStorage
+  ) ?? createJSONStorage(() => noopStorage);
+
 function mergeProjects(loaded?: Project[]): Project[] {
   const base = [...(loaded ?? [])];
   const map = new Map(base.map((p) => [p.id, p]));
@@ -103,7 +144,7 @@ function mergeProjects(loaded?: Project[]): Project[] {
       base.push(d);
     }
   }
-  return [...map.values()].sort((a, b) => {
+  return Array.from(map.values()).sort((a, b) => {
     if (a.id === INBOX_PROJECT_ID) return -1;
     if (b.id === INBOX_PROJECT_ID) return 1;
     return a.name.localeCompare(b.name, "ko");
@@ -113,11 +154,13 @@ function mergeProjects(loaded?: Project[]): Project[] {
 export const useTodoStore = create<TodoState & TodoActions>()(
   persist(
     (set, get) => ({
-      nav: { kind: "view", view: "inbox" },
+      nav: { kind: "dashboard" },
       tasks: [],
       projects: DEFAULT_PROJECTS,
 
       setNav: (nav) => set({ nav }),
+
+      selectDashboard: () => set({ nav: { kind: "dashboard" } }),
 
       selectView: (view) =>
         set({
@@ -166,7 +209,7 @@ export const useTodoStore = create<TodoState & TodoActions>()(
     }),
     {
       name: "goorm-todo-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: todoPersistStorage,
       partialize: (s) => ({
         tasks: s.tasks,
         projects: s.projects,
@@ -177,7 +220,7 @@ export const useTodoStore = create<TodoState & TodoActions>()(
         return {
           ...currentState,
           tasks: Array.isArray(p.tasks) ? p.tasks : currentState.tasks,
-          nav: p.nav ?? currentState.nav,
+          nav: sanitizeNav(p.nav, currentState.nav),
           projects: mergeProjects(
             Array.isArray(p.projects) ? p.projects : currentState.projects
           ),

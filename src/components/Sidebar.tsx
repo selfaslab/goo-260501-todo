@@ -9,6 +9,7 @@ type SidebarProps = {
   tasks: Task[];
   projects: Project[];
   nav: NavState;
+  onSelectDashboard: () => void;
   onSelectView: (view: ViewMode) => void;
   onSelectProject: (projectId: string) => void;
 };
@@ -32,6 +33,7 @@ export function Sidebar({
   tasks,
   projects,
   nav,
+  onSelectDashboard,
   onSelectView,
   onSelectProject,
 }: SidebarProps) {
@@ -62,6 +64,8 @@ export function Sidebar({
     return m;
   }, [tasks, projects]);
 
+  const isDashboard = nav.kind === "dashboard";
+
   function isViewActive(view: ViewMode) {
     return nav.kind === "view" && nav.view === view;
   }
@@ -71,11 +75,20 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex h-screen w-[260px] flex-shrink-0 flex-col border-r border-neutral-200 bg-sidebar">
+    <aside className="flex h-full min-h-0 w-[260px] flex-shrink-0 flex-col border-r border-neutral-200 bg-sidebar">
       <div className="border-b border-neutral-200 px-4 py-4">
-        <div className="text-sm font-semibold tracking-tight text-neutral-900">
+        <button
+          type="button"
+          onClick={onSelectDashboard}
+          className={`w-full rounded-lg px-1 py-1 text-left text-2xl font-bold tracking-tight transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 ${
+            isDashboard
+              ? "bg-red-600/10 text-red-700"
+              : "text-neutral-900 hover:bg-neutral-200/60 hover:text-red-700"
+          }`}
+          aria-label="대시보드로 이동"
+        >
           My tasks
-        </div>
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-3">
