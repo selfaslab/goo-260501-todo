@@ -1,6 +1,8 @@
 # MY TASK
 
-Todoist 스타일의 할 일 앱입니다. **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **Zustand**로 구성되어 있으며, 데이터는 **localStorage**에 저장됩니다.
+Todoist 스타일의 할 일 앱입니다. 
+**Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **Zustand**로 구성되어 있으며, 데이터는 **localStorage**에 저장됩니다.
+
 <img width="1108" height="777" alt="todo1" src="https://github.com/user-attachments/assets/8afbbb3f-7b84-4422-bfb0-9669ae07f669" />
 
 ## 기능
@@ -36,6 +38,7 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 npm run build
 npm run start
 ```
+<img width="1123" height="705" alt="todo2" src="https://github.com/user-attachments/assets/a4412bca-3b10-4aa6-bff2-58351d7533cf" />
 
 ## 프로젝트 구조
 
